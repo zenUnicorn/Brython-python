@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.8.8/brython.js" crossorigin="anonymous" integrity="sha256-rA89wPrTJJQFWJaZveKW8jpdmC3t5F9rRkPyBjz8G04="></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.8.8/brython_stdlib.js" crossorigin="anonymous" integrity="sha256-Gnrw9tIjrsXcZSChwos5Jrpn0bNVNFJuNJI9d71TDs="></script>
+    <link rel="stylesheet" href="app.css">
+    <title>Brython || python</title>
+</head>
+<body onload="brython()">
+    <center><H1>Brython with python<br>😃😅😆😀😋💝</H1></center>
+    <h2 id="hello"></h2>
+    <button id="alert-btn">Alert</button>
+    <!--  -->
+        <input type="text" id="text" placeholder="say something..."><span id="output"></span>
+    <!--  -->
+        <h3 id="greet">Hello {name}</h3>
+    <!--Using ajax call  -->
+        <button id="joke-btn">Get Joke</button>
+        <div id="joke" class="card">Click the 'get joke' button</div>
+    <!-- Grabbiing a file and displaying the content -->
+        <input type="file" id="file-upload"> <br>
+        <textarea  id="file-text" cols="60" rows="10"></textarea>
+    <!-- chnaging the css properties -->
+    <div class="card">
+        <button id="rotate-btn">Rotate</button>
+        <div class="box" id="rotate-box"></div>
+    </div>
+    <!-- storing and retrieving from local storage-->
+    <h3>Saved: <span id="item"></span></h3>
+        <input type="text" id="item-input" placeholder="Add item...">
+        <button id="add-btn" style="display: inline;">Add</button>
+        <button id="remove-btn" style="display: inline;">Remove</button>
+
+  
+<!-- /// Brython codes starts here /// -->
+
+<!-- Alert and DOM Insert -->
+    <script type="text/python" id="script0">
+        from browser import document, console, alert
+
+        def show(e):
+            console.log('Hello')
+            alert('Hello world')
+            document['hello'] <= 'Hello World'
+            
+        document['alert-btn'].bind('click', show)
+    </script>
+
+    <!-- Text bind -->
+    <script type="text/python" id="script1">
+        from browser import document, console
+
+        def show_text(e):
+            console.log(e.target.value)
+            document['output'].textContent = e.target.value; 
+            
+        document['text'].bind('inout', show_text)
+    </script>
+
+    <!-- Template with variables into our html-->
+    <script type="text/python" id="script2">
+        from browser import document
+        from browser.template import Template
+
+        Template(document['greet']).render(name='Unicorn')
+    </script>
+
+    <!-- Making AJAX calls-->
+    <script type="text/python" id="script3">
+        from browser import document, ajax, console
+
+        url = 'https://api.chuknorris.io/random'
+        def on_complete(req):
+            import json
+            data = json.loads(req.responseText)
+            joke = data['value']
+            document['joke'].text = joke
+
+
+        def get_joke():
+            req = ajax.ajax()
+            req.open('GET', url, True)
+            req.bind('complete', on_complete)
+            document['joke'].text = 'Loading...'
+            req.send()
+
+        document['joke-btn']).bind('click', get_joke)
+    </script>
+    <!-- Grabbiing a file and displaying the content/load file data-->
+    <script type="text/python" id="script4">
+        from browser import document, window
+
+        def file_read(e):
+            def onload(e):
+                document['file-text'].value = e.target.result
+
+            file = document['file-upload'].files[0]
+            reader = window.FileReader.new()
+            reader.readAsText(file)
+            reader.bind('load', onload)
+        
+        document['file-upload'].bind('input', file_read)
+    </script>
+
+     <!--Rotate/Manipulate css style -->
+     <script type="text/python" id="script5">
+        from browser import document, html
+
+        box = document['rotate-box']
+        angle = 10
+        def change(e):
+            global angle
+            box.style.transform = f"rotate{angle}deg"
+            angle += 10
+        
+        document['rotate-btn'].bind('click', change)
+    </script>
+
+    <!--Localstorage -->
+    <script type="text/python" id="script6">
+        from browser import document, html, wondow, console
+
+        storage = window.localStorage
+
+        if storage.getItem('item'):
+            document['item'] <= storage.getItem('item')
+
+        def add_item(e):
+            item = document['item-input'].value
+            console.log(item)
+            storage.setItem('item', item)
+            document['item'].textContent = item
+        
+        def remove_item(e):
+            storage.removeItem('item')
+            document['item'].textContent = ''
+
+        document['add-btn'].bind('click', add_item)
+        document['remove-btn'].bind('click', remove_item)
+    </script>
+
+    <!-- Brython code ends here -->
+</body>
+</html>
